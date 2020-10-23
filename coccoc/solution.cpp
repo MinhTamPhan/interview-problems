@@ -187,8 +187,7 @@ int main(int argc, char ** argv) {
 		return -1;
 	}
 
-	if (fileSize > LIMIT_MEM)
-		mergeKRun(fileSize, output);
+	if (fileSize > LIMIT_MEM) mergeKRun(fileSize, output);
 	else sortInMem(input, output);
 
 	if (check != 0){
