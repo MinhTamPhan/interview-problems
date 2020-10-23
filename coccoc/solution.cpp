@@ -135,16 +135,50 @@ void MergeKRun(uint64_t fileSize, string output) {
     delete[] outStreams;
 }
 
-void check(string out) {
-	ifstream* inputStreams = new ifstream[K];
+void sortInMem(string input, string output) {
+	ifstream inputStream(input, ios::in);
+    vector<string> lines;
+	string line;
+
+ 	while (!inputStream.eof()) {
+        getline(inputStream, line);
+		lines.push_back(line);
+ 	}
+	inputStream.close();
+	sort(lines.begin(), lines.end());
+	ofstream outStreams(output, ios::out);
+	for (auto &line: lines) {
+		outStreams << line << endl;
+	}
+	outStreams.close();
+}
+
+bool checkResult(string correctOutput, string output) {
+	ifstream correctStream(correctOutput, ios::in);
+	ifstream outputStream(output, ios::in);
+	string correctLine, outputLine;
+	while (!correctStream.eof()) {
+		getline(correctStream, correctLine);
+		getline(outputStream, outputLine);
+		if (correctLine != outputLine) {
+			correctStream.close();
+			outputStream.close();
+			return false;
+		}
+	}
+	correctStream.close();
+	outputStream.close();
+	return true;
 }
 
 int main(int argc, char ** argv) {
 	if (argc < 4) {
-		cout << "Usge: " << argv[0] << " [input] [output] [limit mem] [optional K way]" << endl;
+		cout << "Usge: " << argv[0] << " [input] [output] [limit mem] [optional K way] [optional 0 not check output: 1 check output]" << endl;
 		return -1;
 	}
 	if (argc == 5) K = atoi(argv[4]);
+	int check = 0;
+	if (argc == 6) check = atoi(argv[5]);
 	LIMIT_MEM = atoll(argv[3]);
     uint64_t fileSize = 0;
 	string input(argv[1]), output(argv[2]);
@@ -154,6 +188,11 @@ int main(int argc, char ** argv) {
 		return -1;
 	}
     MergeKRun(fileSize, output);
-
+	if (check != 0){
+		string correctOutput("./correctOut");
+		sortInMem(input, correctOutput);
+		bool isCorrect = checkResult(correctOutput, output);
+		cout << (isCorrect ? "CORRECT :)" : "INCORRECT :(") << endl;
+	}
     return 0;
 }
