@@ -40,11 +40,20 @@ My main idea base is [k-way merge algorithm](https://en.wikipedia.org/wiki/K-way
 
 My implementation run failed if limit memory strict.
 
-I assume limit memory mean each read file I don't read over limit memory. Memory alway available for heap with K line and k Integer if not throw `out of memory exception`
+I assume limit memory mean each read file I don't read over limit memory. Memory alway available for heap with K line and K Integer for `priority queue` if not throw `out of memory exception`
+
+command line argument:
+
+`program [input] [output [memory limit] [optional K] [optional checkResult]`
+
+* optional K default 3.
+
+* checkResult 0 not check output: 1 check output this option only work if can sort in mem (just for test).
 
 [c++ implement](./solution.cpp)
 
 Build on `g++ (Ubuntu 4.8.5-4ubuntu8~16.04.1) 4.8.5`
+
 Example run
 
 ```

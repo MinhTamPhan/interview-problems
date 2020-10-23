@@ -13,11 +13,6 @@ auto Comparator = [](TupleSI left, TupleSI right) {
     return left.first > right.first;
 };
 
-/*
-**main idea: loop all line in file, split into block fit limit mem,
-**write blocks into k file with step k block
-*/
-
 int scan(string input, uint64_t& fileSize) {
     int count = 0;
     uint64_t blockSize = 0;
@@ -67,21 +62,24 @@ int scan(string input, uint64_t& fileSize) {
 
 void mergeRun(ifstream* inStreams, ofstream* outStreams, int numOutStream = 1){
     int numEmptyScan = 0, fileCount = 0;
-    uint64_t count[numOutStream];
+    int64_t count[K];
     priority_queue<TupleSI, vector<TupleSI>, decltype(Comparator)> pq(Comparator);
     while (numEmptyScan < numOutStream) {
         int totalLine = 0;
         for (int i = 0; i < K; i++) {
-            string line;
-            getline(inStreams[i], line);
-            if (!line.empty()) {
-                count[i] = atoll(line.c_str());
-                totalLine += count[i];
-                getline(inStreams[i], line);
-                pq.push(make_pair(line, i));
-            } else {
-                numEmptyScan++;
-            }
+			if (!inStreams[i].eof()){
+				string line;
+				getline(inStreams[i], line);
+				if (!line.empty()) {
+					count[i] = atoll(line.c_str());
+					totalLine += count[i];
+					getline(inStreams[i], line);
+					pq.push(make_pair(line, i));
+				} else {
+					numEmptyScan++;
+					count[i] = 0;
+				}
+			}
         }
         fileCount %= numOutStream;
         if (totalLine > 0) {
@@ -188,7 +186,11 @@ int main(int argc, char ** argv) {
 		cout << "input not found" << endl;
 		return -1;
 	}
-    mergeKRun(fileSize, output);
+
+	if (fileSize > LIMIT_MEM)
+		mergeKRun(fileSize, output);
+	else sortInMem(input, output);
+
 	if (check != 0){
 		string correctOutput("./correctOut");
 		sortInMem(input, correctOutput);
