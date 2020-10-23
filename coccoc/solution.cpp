@@ -1,11 +1,11 @@
 //
 // Created by minhtam on 22/10/2020.
 //
-#include <bits/stdc++.h>
+#include "bits/stdc++.h"
 using namespace std;
 
 uint64_t LIMIT_MEM = 40 * 4;
-uint64_t K = 3;
+uint8_t K = 3;
 typedef pair<string, int> TupleSI;
 auto Comparator = [](TupleSI left, TupleSI right) {
     return left.first > right.first;
@@ -135,10 +135,25 @@ void MergeKRun(uint64_t fileSize, string output) {
     delete[] outStreams;
 }
 
+void check(string out) {
+	ifstream* inputStreams = new ifstream[K];
+}
+
 int main(int argc, char ** argv) {
+	if (argc < 4) {
+		cout << "Usge: " << argv[0] << " [input] [output] [limit mem] [optional K way]" << endl;
+		return -1;
+	}
+	if (argc == 5) K = atoi(argv[4]);
+	LIMIT_MEM = atoll(argv[3]);
     uint64_t fileSize = 0;
-    scan("../Input", fileSize);
-    cout << "fileSize " << fileSize << endl;
-    MergeKRun(fileSize, "../Output");
+	string input(argv[1]), output(argv[2]);
+    int err = scan(input, fileSize);
+	if (err != 0) {
+		cout << "input not found" << endl;
+		return -1;
+	}
+    MergeKRun(fileSize, output);
+
     return 0;
 }

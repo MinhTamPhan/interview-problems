@@ -133,3 +133,8 @@ dmypy.json
 */books/*
 *.exe
 *.vscode
+*.class
+*.o
+Out*
+tmp*
+swap*
