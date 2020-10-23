@@ -1,32 +1,35 @@
 //
-// Created by minhtam on 22/10/2020.
+// Created by minhtam.
 //
 #include "bits/stdc++.h"
 using namespace std;
 
 uint64_t LIMIT_MEM = 40 * 4;
-uint8_t K = 3;
+int K = 3;
+
 typedef pair<string, int> TupleSI;
+
 auto Comparator = [](TupleSI left, TupleSI right) {
     return left.first > right.first;
 };
+
+/*
+**main idea: loop all line in file, split into block fit limit mem,
+**write blocks into k file with step k block
+*/
 
 int scan(string input, uint64_t& fileSize) {
     int count = 0;
     uint64_t blockSize = 0;
     ifstream inputStream(input, ios::in);
     vector<string> lines;
-    // main idea: loop all line in file, split into block fit limit mem,
-    // write blocks into k file with step k block
     if (inputStream.is_open()) {
         vector<ofstream> outStreams(K);
-        // init k outStreams
         for (int i = 0; i < K; ++i) {
-            string file("../tmp");
+            string file("./tmp");
             file += to_string(i);
             outStreams[i].open(file, ios::out);
         }
-
         string line;
         while (!inputStream.eof()) {
             getline(inputStream, line);
@@ -52,14 +55,12 @@ int scan(string input, uint64_t& fileSize) {
         outStreams[count % K] << lines.size() << endl;
         for (auto &l : lines)
             outStreams[count % K] << l << endl;
-        // close out stream
         for (int i = 0; i < outStreams.size(); ++i)
             outStreams[i].close();
     } else {
         cout << "file: " << input << " not found\n";
         return -1;
     }
-    // close in stream
     inputStream.close();
     return 0;
 }
@@ -101,8 +102,8 @@ void mergeRun(ifstream* inStreams, ofstream* outStreams, int numOutStream = 1){
     }
 }
 
-void MergeKRun(uint64_t fileSize, string output) {
-    string src = "../tmp", dest = "../swap";
+void mergeKRun(uint64_t fileSize, string output) {
+    string src = "./tmp", dest = "./swap";
     long totalByteSorted = LIMIT_MEM;
     ifstream* inputStreams = new ifstream[K];
     ofstream* outStreams = new ofstream[K];
@@ -176,7 +177,7 @@ int main(int argc, char ** argv) {
 		cout << "Usge: " << argv[0] << " [input] [output] [limit mem] [optional K way] [optional 0 not check output: 1 check output]" << endl;
 		return -1;
 	}
-	if (argc == 5) K = atoi(argv[4]);
+	if (argc > 5) K = atoi(argv[4]);
 	int check = 0;
 	if (argc == 6) check = atoi(argv[5]);
 	LIMIT_MEM = atoll(argv[3]);
@@ -187,7 +188,7 @@ int main(int argc, char ** argv) {
 		cout << "input not found" << endl;
 		return -1;
 	}
-    MergeKRun(fileSize, output);
+    mergeKRun(fileSize, output);
 	if (check != 0){
 		string correctOutput("./correctOut");
 		sortInMem(input, correctOutput);
