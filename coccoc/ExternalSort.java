@@ -99,12 +99,12 @@ public class ExternalSort {
 
 	}
 
-	public class Tp {
+	public class Tuple {
 
 		String val;
 		int idx;
 
-		Tp(String val, int idx) {
+		Tuple(String val, int idx) {
 			this.val = val;
 			this.idx = idx;
 		}
@@ -119,7 +119,7 @@ public class ExternalSort {
 	void MergeRun(List<Scanner> scaners, List<PrintWriter> writers) {
 		int numEmptyScan = 0, fileCount = 0;
 		int count[] = new int[k];
-		PriorityQueue<Tp> pq = new PriorityQueue<>(Comparator.comparing(Tp::toString));
+		PriorityQueue<Tuple> pq = new PriorityQueue<>(Comparator.comparing(Tp::toString));
 		while (numEmptyScan < k) {
 			int totalLine = 0;
 			for (int i = 0; i < k; i++) {
@@ -128,7 +128,7 @@ public class ExternalSort {
 					String nextLine = scanner.nextLine();
 					count[i] = Integer.valueOf(nextLine);
 					totalLine += count[i];
-					pq.add(new Tp(scanner.nextLine(), i));
+					pq.add(new Tuple(scanner.nextLine(), i));
 				} else {
 					numEmptyScan++;
 				}
@@ -144,7 +144,7 @@ public class ExternalSort {
 					String val = poll.val;
 					Scanner runScan = scaners.get(poll.idx);
 					if (runScan.hasNext() && --count[poll.idx] > 0) {
-						pq.add(new Tp(runScan.nextLine(), poll.idx));
+						pq.add(new Tuple(runScan.nextLine(), poll.idx));
 					}
 					printWriter.println(val);
 				}
