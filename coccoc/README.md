@@ -1,5 +1,15 @@
 # CocCoc interview coding question
 
+Table contain:
+
+  * [Problem](#Problem)
+
+  * [My solution](#My-solution)
+
+  * [My implementation](#My-implementation)
+
+  * [Testing](#Testing)
+
 ## Problem
 
 We have 200Gb file filled with text lines divided by "\n". Our server has Linux on board, gcc, 8Gb
