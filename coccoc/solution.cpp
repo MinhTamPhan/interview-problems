@@ -175,7 +175,7 @@ int main(int argc, char ** argv) {
         cout << "Usge: " << argv[0] << " [input] [output] [limit mem] [optional K way] [optional 0 not check output: 1 check output]" << endl;
         return -1;
     }
-    if (argc > 5) K = atoi(argv[4]);
+    if (argc > 5) K = (atoi(argv[4]) < 3 ? K : atoi(argv[4]));
     int check = 0;
     if (argc == 6) check = atoi(argv[5]);
     LIMIT_MEM = atoll(argv[3]);

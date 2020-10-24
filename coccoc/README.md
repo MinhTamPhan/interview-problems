@@ -58,7 +58,16 @@ Example run
 
 ```
 g++ -std=c++11 ./solution.cpp -o sort.o
-./sort.o ./Input_50 ./Out 160 5 1
+./sort.o ./Input_50 ./Out 160
+./sort.o ./Input_50 ./Out 160 5 1 // optiopn k-way = 5, check = true
 ```
 
 [java implement](./ExternalSort.class)
+Build on Java 8
+Example run
+
+```
+javac ./ExternalSort.java
+java ExternalSort ./Input ./OutJava 160
+java ExternalSort ./Input ./OutJava 160 5 1 // optiopn k-way = 5, check = true
+```
