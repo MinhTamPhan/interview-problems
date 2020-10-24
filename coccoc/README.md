@@ -10,7 +10,7 @@ limits, not only 8Gb).
 
 ## My solution
 
-My main idea base is [k-way merge algorithm](https://en.wikipedia.org/wiki/K-way_merge_algorithm):
+My main idea base in [k-way merge algorithm](https://en.wikipedia.org/wiki/K-way_merge_algorithm):
 
 ![k-way merge algorithm](https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Tournament_tree.png/1280px-Tournament_tree.png)
 
@@ -63,7 +63,9 @@ g++ -std=c++11 ./solution.cpp -o sort.o
 ```
 
 [java implement](./ExternalSort.class)
+
 Build on Java 8
+
 Example run
 
 ```
@@ -71,3 +73,9 @@ javac ./ExternalSort.java
 java ExternalSort ./Input ./OutJava 160
 java ExternalSort ./Input ./OutJava 160 5 1 // optiopn k-way = 5, check = true
 ```
+
+## Testing
+
+I gen two input at tool https://www.lipsum.com/feed/html 25, 100 lines for testing
+
+I'm tested with limit memory 160, 1600, 16000 bytes with k = 3, 5 and work correctly
