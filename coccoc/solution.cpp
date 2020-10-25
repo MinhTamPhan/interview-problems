@@ -13,7 +13,7 @@ auto Comparator = [](TupleSI left, TupleSI right) {
     return left.first > right.first;
 };
 
-int scan(string input, uint64_t& fileSize) {
+int scan(string input, uint64_t& fileSize, uint64_t& lineCount) {
     int count = 0;
     uint64_t blockSize = 0;
     ifstream inputStream(input, ios::in);
@@ -29,11 +29,12 @@ int scan(string input, uint64_t& fileSize) {
         while (!inputStream.eof()) {
             getline(inputStream, line);
             int length = line.length();
-            if (blockSize + length < LIMIT_MEM) {
+            if (blockSize + length <= LIMIT_MEM) {
                 lines.push_back(line);
                 blockSize += length;
             } else {
                 fileSize += blockSize;
+                lineCount += lines.size();
                 sort(lines.begin(), lines.end());
                 count %= K; // avoid overflow if num line '>>' MAX_INT
                 outStreams[count] << lines.size() << endl;
@@ -46,6 +47,7 @@ int scan(string input, uint64_t& fileSize) {
             }
         }
         fileSize += blockSize;
+        lineCount += lines.size();
         sort(lines.begin(), lines.end());
         outStreams[count % K] << lines.size() << endl;
         for (auto &l : lines)
@@ -53,15 +55,16 @@ int scan(string input, uint64_t& fileSize) {
         for (int i = 0; i < outStreams.size(); ++i)
             outStreams[i].close();
     } else {
-        cout << "file: " << input << " not found\n";
         return -1;
     }
     inputStream.close();
     return 0;
 }
 
-void mergeRun(ifstream* inStreams, ofstream* outStreams, int numOutStream = 1){
-    int numEmptyScan = 0, fileCount = 0;
+// return Total line is sorted in first block
+int64_t mergeRun(ifstream* inStreams, ofstream* outStreams, int numOutStream = 1){
+    int64_t numEmptyScan = 0, fileCount = 0, firstBlockCount = 0;
+	bool isFirstBlock = true;
     int64_t count[K];
     priority_queue<TupleSI, vector<TupleSI>, decltype(Comparator)> pq(Comparator);
     while (numEmptyScan < numOutStream) {
@@ -73,6 +76,7 @@ void mergeRun(ifstream* inStreams, ofstream* outStreams, int numOutStream = 1){
                 if (!line.empty()) {
                     count[i] = atoll(line.c_str());
                     totalLine += count[i];
+					if (isFirstBlock) firstBlockCount += count[i];
                     getline(inStreams[i], line);
                     pq.push(make_pair(line, i));
                 } else {
@@ -81,6 +85,7 @@ void mergeRun(ifstream* inStreams, ofstream* outStreams, int numOutStream = 1){
                 }
             }
         }
+		isFirstBlock = false;
         fileCount %= numOutStream;
         if (totalLine > 0) {
             if (numOutStream != 1)
@@ -98,23 +103,23 @@ void mergeRun(ifstream* inStreams, ofstream* outStreams, int numOutStream = 1){
             fileCount++;
         }
     }
+	return firstBlockCount;
 }
 
-void mergeKRun(uint64_t fileSize, string output) {
+void mergeKRun(uint64_t totalLine, string output) {
     string src = "./tmp", dest = "./swap";
-    long totalByteSorted = LIMIT_MEM;
+    long totalLineSorted = 0;
     ifstream* inputStreams = new ifstream[K];
     ofstream* outStreams = new ofstream[K];
-    while (totalByteSorted < fileSize / K) {
+    while (totalLineSorted < totalLine / K) {
         for (int i = 0; i < K; ++i) {
             string inFile(src); inFile += to_string(i);
             string outFile(dest); outFile += to_string(i);
             inputStreams[i].open(inFile, ios::in);
             outStreams[i].open(outFile, ios::out);
         }
-        mergeRun(inputStreams, outStreams, K);
+        totalLineSorted = mergeRun(inputStreams, outStreams, K);
         swap(src, dest);
-        totalByteSorted *= K;
         for (int i = 0; i < K; i++) {
             inputStreams[i].close();
             outStreams[i].close();
@@ -179,15 +184,16 @@ int main(int argc, char ** argv) {
     int check = 0;
     if (argc == 6) check = atoi(argv[5]);
     LIMIT_MEM = atoll(argv[3]);
-    uint64_t fileSize = 0;
+    uint64_t fileSize = 0, lineCount = 0;
     string input(argv[1]), output(argv[2]);
-    int err = scan(input, fileSize);
+    int err = scan(input, fileSize, lineCount);
+
     if (err != 0) {
         cout << "input not found" << endl;
         return -1;
     }
 
-    if (fileSize > LIMIT_MEM) mergeKRun(fileSize, output);
+    if (fileSize > LIMIT_MEM) mergeKRun(lineCount, output);
     else sortInMem(input, output);
 
     if (check != 0){
