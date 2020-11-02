@@ -89,3 +89,10 @@ java ExternalSort ./Input ./OutJava 160 5 1 // optiopn k-way = 5, check = true
 I gen two input at tool https://www.lipsum.com/feed/html 25, 100 lines for testing
 
 I'm tested with limit memory 160, 1600, 16000 bytes with k = 3, 5 and work correctly
+
+## feedback
+C++ solution: worked fine, except one extra blank line was added to the output.
+Java solution: did not work fine because java.util.Scanner() failed to read some spacial characters in the input file.
+Test with small input files: Both Java/C++ solutions failed on some small input files.
+Other note: Bottle neck problem on disk I/Os
+The algorithm appears to incur significant disk I/O overheads as k is small. In this case, the mergeRun() function might need to be run many times to reach the final output file, causing many file read/write operations on disk to be performed along the way. So why not pre-calculate the hyperparameter k in the first place, which is big enough so that mergeRun() needs to be run only once to produce the final output? In that way, the disk I/O overheads might be minimized.
