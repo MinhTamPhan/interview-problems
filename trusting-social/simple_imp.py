@@ -1,27 +1,30 @@
-def read(fileName):
-    f = open(fileName)
-    res = []
+import sys
+
+def read(file=sys.stdin):
+    res = dict()
     i = 0
-    for line in f:
+    for line in file:
         if i != 0:
-            p, a, d = line.split(',')
-            res.append((p, a, d))
+            phone, activate, deactivate = line.strip().split(',')
+            if phone not in res:
+                res[phone] = []
+            res[phone].append((activate, deactivate))
         i += 1
-    res.sort()
     return res
 
-sortedList = read('./input.txt')
-p, a, d = sortedList[0]
-m[p] = a
-for i in range(1, len(sortedList):
-        p1, a1, d1 = sortedList[i]
-        if p1 != p:
-            m[p] = a
-            p, a, d = p1, a1, d1
+def processPhone(arr=[]):
+    arr.sort()
+    activateDate, _ = arr[-1]
+    for i in range(len(arr) - 2, 0, -1):
+        a, d = arr[i]
+        if activateDate == d:
+            activateDate = a
         else:
-            if d != a1: # grab
-                a, d = a1, d1
-fOut = 'output.txt'
-for k, v in m:
-    print('{},{}'.format(k, v), file=fOut)
+            return activateDate
+    return arr[0][0]
 
+if __name__ == '__main__':
+    mapPhone = read()
+    for k, v in mapPhone.items():
+        activationDate = processPhone(v)
+        print('{}, {}'.format(k, activationDate))
