@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -10,6 +11,8 @@ import (
 	"sync"
 	"time"
 )
+
+const layout = "2006-01-02"
 
 type Pair struct {
 	First, Second int64
@@ -20,7 +23,7 @@ type Record struct {
 	activities []*Pair
 }
 
-func read(input *os.File) map[int][]*Pair {
+func read(input *os.File) (map[int][]*Pair, error) {
 	reader := bufio.NewReader(input)
 	res := make(map[int][]*Pair)
 	reader.ReadString('\n')
@@ -31,9 +34,18 @@ func read(input *os.File) map[int][]*Pair {
 		}
 		text = strings.TrimSuffix(text, "\n")
 		s := strings.Split(text, ",")
-		phone, _ := strconv.Atoi(s[0])
-		activate, _ := time.Parse("2006-01-02", s[1])
-		deactivate, err := time.Parse("2006-01-02", s[2])
+		if len(s) != 3 {
+			return nil, errors.New("wrong input format")
+		}
+		phone, err := strconv.Atoi(s[0])
+		if err != nil {
+			return nil, err
+		}
+		activate, err := time.Parse(layout, s[1])
+		if err != nil {
+			return nil, err
+		}
+		deactivate, err := time.Parse(layout, s[2])
 		if err != nil {
 			deactivate = time.Unix(0, 0)
 		}
@@ -42,14 +54,12 @@ func read(input *os.File) map[int][]*Pair {
 			Second: deactivate.Unix(),
 		})
 	}
-	return res
+	return res, nil
 }
 
-func processPhoneActivities(in chan *Record, wg *sync.WaitGroup, output ...*os.File) {
-	writer := bufio.NewWriter(os.Stdout)
-	if output != nil && len(output) == 1 {
-		writer = bufio.NewWriter(output[0])
-	}
+func processPhoneActivities(in chan *Record, wg *sync.WaitGroup, output *os.File) {
+	defer wg.Done()
+	writer := bufio.NewWriter(output)
 	for {
 		record, ok := <-in
 		if !ok {
@@ -70,19 +80,28 @@ func processPhoneActivities(in chan *Record, wg *sync.WaitGroup, output ...*os.F
 				break
 			}
 		}
-		fmt.Println(writer.WriteString("123321"))
+		activate := time.Unix(activateDate, 0)
+		row := fmt.Sprintf("0%v,%v\n", record.phone, activate.Format(layout))
+		writer.WriteString(row)
+		writer.Flush()
 	}
-	wg.Done()
 }
 
 // exported method
-func UnitPhoneNumberImp(numWorker int, intput *os.File, output *os.File) {
-
+func UnitPhoneNumberImp(numWorker int, intput *os.File, output *os.File) error {
 	var wg sync.WaitGroup
-	activitiesLog := read(intput)
+	activitiesLog, err := read(intput)
+	if err != nil {
+		return err
+	}
+	n := len(activitiesLog)
+	if numWorker > n {
+		numWorker = n
+	}
 	channels := make([]chan *Record, numWorker)
 	for i := range channels {
-		channels[i] = make(chan *Record, 5)
+		// (n-1)/numWorker+1 mean buffer chan get ceil (round up)
+		channels[i] = make(chan *Record, (n-1)/numWorker+1)
 	}
 	count := 0
 	for phone, activities := range activitiesLog {
@@ -92,17 +111,29 @@ func UnitPhoneNumberImp(numWorker int, intput *os.File, output *os.File) {
 		}
 		count++
 	}
-
+	writer := bufio.NewWriter(output)
+	writer.WriteString("PHONE_NUMBER,REAL_ACTIVATION_DATE\n")
+	writer.Flush()
 	for i := 0; i < numWorker; i++ {
 		wg.Add(1)
-		go processPhoneActivities(channels[i], &wg, nil)
+		go processPhoneActivities(channels[i], &wg, output)
 	}
 	for i := range channels {
 		close(channels[i])
 	}
 	wg.Wait()
+	return nil
 }
 
 func main() {
-	UnitPhoneNumberImp(1, os.Stdin, os.Stdout)
+	args := os.Args
+	var numWorker int = 3
+	if len(args) == 2 {
+		var err error = nil
+		numWorker, err = strconv.Atoi(args[1])
+		if err != nil {
+			panic("numWorker must be numberic")
+		}
+	}
+	UnitPhoneNumberImp(numWorker, os.Stdin, os.Stdout)
 }
