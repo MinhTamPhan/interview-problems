@@ -12,7 +12,7 @@ def read(file=sys.stdin):
         i += 1
     return res
 
-def processPhone(arr=[]):
+def findActivation(arr=[]):
     arr.sort()
     activateDate, _ = arr[-1]
     for i in range(len(arr) - 2, 0, -1):
@@ -26,5 +26,5 @@ def processPhone(arr=[]):
 if __name__ == '__main__':
     mapPhone = read()
     for k, v in mapPhone.items():
-        activationDate = processPhone(v)
+        activationDate = findActivation(v)
         print('{}, {}'.format(k, activationDate))

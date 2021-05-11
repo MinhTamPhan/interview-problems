@@ -29,17 +29,53 @@ PHONE_NUMBER,ACTIVATION_DATE,DEACTIVATION_DATE
 0987000001,2016-06-01,2016-09-01
 ```
 ## Analyze 
--   records of the same phone number don't need to be consecutive.
--   if same phone number owner changes prepaid/postpaid plans the PHONE_NUMBER,ACTIVATION_DATE consecutive.
--   one phone number has maximum one row has empty DEACTIVATION_DATE
+-   Records of the same phone number don't need to be consecutive.
+-   If same phone number owner changes prepaid/postpaid plans the ACTIVATION_DATE, DEACTIVATION_DATE must be consecutive.
+-   One phone number has maximum one row has empty DEACTIVATION_DATE.
+-   If same phone number there is not any `ACTIVATION_DATE, DEACTIVATION_DATE` overlap with another.
+-   If same phone number change owner. It must be have a `gap` Between `DEACTIVATION_DATE` of previous owner and `ACTIVATION_DATE` current owner.
 
-`the problem Find the actual activation date of phone number`
-change `find activation date of last owner of phone number`.
+The problem `Find the actual activation date of phone number`
+change `find activation date last owners of phone number`.
 
-## Algorithm
+## Algorithm.
+With the problem has change like the previous section. `Find activation date last owners of phone number`. I design algorithm to solve for find activation for specific phone number below:
+-   `input`: `array` mean array tuples activation_date and deactivation_date
+-   `output`: activation_date last owners of phone number.
+```cpp
+    func findActivation(array){
+        sort(array) // sort accessing by composite key
+        activateDate, deactivateDate = last(arr)
+        for item in array from bottom to top {
+            acti, deacti = item
+            // mean changes prepaid/postpaid
+            if (activateDate == deacti)
+                activateDate = acti
+            // mean has a gap
+            else
+                return activateDate
+        }
+        // mean not exist any gap
+        return activateDate
+    }
 ```
-    
+For resolve fully problem I design algorithm below:
+
+```cpp
+    func resolve(fileName, output){
+        // read(fileName) func return map with
+        // key=phone
+        //value = array tuples activation_date and deactivation_date.
+        mapActivities = read(fileName)
+        for key, value in mapActivities.items():
+            activationDate = findActivation(key)
+            print('{}, {}'.format(k, activationDate), output)
+    }
 ```
+
+With this design
+- time complexity `O(N * Mlog(M))`, `N` is number of unit phone number. `M` is maximum length array tuples activation_date and deactivation_date.
+- space complexity `O(N)`, `N` total record in `file`
 ## simple implement python
 
 ## go implement with optimate time complexity
