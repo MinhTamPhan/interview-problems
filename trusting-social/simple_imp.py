@@ -5,7 +5,7 @@ def read(file=sys.stdin):
     i = 0
     for line in file:
         if i != 0:
-            phone, activate, deactivate = line.strip().split(',')
+            phone, activate, deactivate = line.rstrip().split(',')
             if phone not in res:
                 res[phone] = []
             res[phone].append((activate, deactivate))
