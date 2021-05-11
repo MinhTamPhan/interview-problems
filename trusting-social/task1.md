@@ -33,7 +33,7 @@ PHONE_NUMBER,ACTIVATION_DATE,DEACTIVATION_DATE
 -   If same phone number owner changes prepaid/postpaid plans the ACTIVATION_DATE, DEACTIVATION_DATE must be consecutive.
 -   One phone number has maximum one row has empty DEACTIVATION_DATE.
 -   If same phone number there is not any `ACTIVATION_DATE, DEACTIVATION_DATE` overlap with another.
--   If same phone number change owner. It must be have a `gap` Between `DEACTIVATION_DATE` of previous owner and `ACTIVATION_DATE` current owner.
+-   If same phone number change owner. It must be have a `gap` between `DEACTIVATION_DATE` of previous owner and `ACTIVATION_DATE` current owner.
 
 The problem `Find the actual activation date of phone number`
 change `find activation date last owners of phone number`.
@@ -44,8 +44,8 @@ With the problem has change like the previous section. `Find activation date las
 -   `output`: activation_date last owners of phone number.
 ```cpp
     func findActivation(array){
-        sort(array) // sort accessing by composite key
-        activateDate, deactivateDate = last(arr)
+        sort(array) // sort accessing by activation_date because don't happen overlap
+        activateDate, deactivateDate = arr.last()
         for item in array from bottom to top {
             acti, deacti = item
             // mean changes prepaid/postpaid
@@ -78,8 +78,31 @@ With this design
 - space complexity `O(N)`, `N` total record in `file`
 ## simple implement python
 
-## go implement with optimate time complexity
+So I have simple implementation for algorithm previous make sure it work and work with small input and understand how it work for make better version in golang at below section.
 
-## flow-up
+[simple_imp.py](./simple_imp.py)
 
-## conculation
+cmd run example:
+```sh
+make run_simple input=./input.csv ouput=./output.csv
+```
+
+- time complexity `O(N * Mlog(M))`, `N` is number of unit phone number. `M` is maximum length array tuples activation_date and deactivation_date.
+- space complexity `O(N)`, `N` total record in `file`
+## go implement with optimize time complexity
+With [golang implementations](./unit_phone_number.go), I have the following optimizations:
+-   First optimize time complexity : in algorithm I see process `Find activation date last owners of phone number` for specific phone number `independent` with another phone number. It can be run with `multithread` with golang is multi `gorouting`.
+- Second optimize space complexity: `phone number`, `activate date`, `deactivate date` can be store in int64. So it can be 3 * 64 * 50 000 000 = 1.2 `gigabytes` run easy with a normal personal laptop(ram 4GB).
+
+[unit_phone_number_test.go](./unit_phone_number_test)
+## unit test
+some simple unit test.
+
+unit test here [unit_phone_number_test.go](./unit_phone_number_test.go).
+## follow up questions
+
+if file bigger 500 000 000 or 5 000 000 000 row about `12`, `120` gigabytes.
+-   Same strategy and algorithm. Use sorting but external sort and with specific phone number find activation date last owners of phone number.
+-   Here is external sort version `C/C++` I implement for resolve sorting text file end with `\n`. It work well and has verify with text file `60 gigabytes` detail at here.
+
+## conclude
