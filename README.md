@@ -2,4 +2,4 @@
 
 some interview coding questions
 
-## [CocCoc](./coccoc/README.md)
+## [Trusting Social](./trusting-social/README.md)
