@@ -95,7 +95,7 @@ With [golang implementations](./unit_phone_number.go), I have the following opti
 -   First optimize time complexity : in algorithm I see process `Find activation date last owners of phone number` for specific phone number `independent` with another phone number. It can be run with `multithread` with golang is multi `gorouting`.
 - Second optimize space complexity: `phone number`, `activate date`, `deactivate date` can be store in int64. So it can be 3 * 64 * 50 000 000 = 1.2 `gigabytes` run easy with a normal personal laptop(ram 4GB).
 
-[unit_phone_number_test.go](./unit_phone_number_test)
+[unit_phone_number.go](./unit_phone_number.go)
 
 - time complexity `O(Mlog(M))`,`M` is maximum length array tuples activation_date and deactivation date.`Mlog(M)` is cost for build-in func sorting. Assumption we have enough gorouting and ignore cost (create, switch context...) for each gorouting. If not `O(N + Mlog(M))` `N` is total cost (create, switch context...) for each gorouting.
 - space complexity `O(N)`, `N` total record in `file`
