@@ -1,4 +1,4 @@
-## problem
+## Problem
 Task 1 [Algorithm and coding]: Find the actual activation date of phone number
 
 Statement:
@@ -87,22 +87,45 @@ cmd run example:
 make run_simple input=./input.csv ouput=./output.csv
 ```
 
-- time complexity `O(N * Mlog(M))`, `N` is number of unit phone number. `M` is maximum length array tuples activation_date and deactivation_date.
-- space complexity `O(N)`, `N` total record in `file`
+- time complexity `O(N * Mlog(M))`, `N` is number of unit phone number. `M` is maximum length array tuples activation_date and deactivation_date. `Mlog(M)` is cost for build-in func sorting.
+- space complexity `O(N)`, `N` total record in `file`.
+
 ## go implement with optimize time complexity
 With [golang implementations](./unit_phone_number.go), I have the following optimizations:
 -   First optimize time complexity : in algorithm I see process `Find activation date last owners of phone number` for specific phone number `independent` with another phone number. It can be run with `multithread` with golang is multi `gorouting`.
 - Second optimize space complexity: `phone number`, `activate date`, `deactivate date` can be store in int64. So it can be 3 * 64 * 50 000 000 = 1.2 `gigabytes` run easy with a normal personal laptop(ram 4GB).
 
 [unit_phone_number_test.go](./unit_phone_number_test)
+
+- time complexity `O(Mlog(M))`,`M` is maximum length array tuples activation_date and deactivation date.`Mlog(M)` is cost for build-in func sorting. Assumption we have enough gorouting and ignore cost (create, switch context...) for each gorouting. If not `O(N + Mlog(M))` `N` is total cost (create, switch context...) for each gorouting.
+- space complexity `O(N)`, `N` total record in `file`
+
+cmd run example:
+```sh
+# n num gorouting default 3
+make run_go input=./input.csv ouput=./output.csv
+make run_go_n n=5 input=./input.csv ouput=./output.csv
+```
+
 ## unit test
-some simple unit test.
+Some simple test case. In `gorouting func` I don't know how to write unit test for it :((
 
 unit test here [unit_phone_number_test.go](./unit_phone_number_test.go).
+
+```sh
+make run_test
+```
 ## follow up questions
 
 if file bigger 500 000 000 or 5 000 000 000 row about `12`, `120` gigabytes.
 -   Same strategy and algorithm. Use sorting but external sort and with specific phone number find activation date last owners of phone number.
--   Here is external sort version `C/C++` I implement for resolve sorting text file end with `\n`. It work well and has verify with text file `60 gigabytes` detail at here.
+-   Here is external sort ([`external_sort.cpp`](../external_sort.cpp) case study: I learn about external sort in the past) I implement for resolve sorting text file end with `\n`. It work well and has verify with text file `60 gigabytes` [detail at here](./externalsort.md).
 
-## conclude
+## Concludes
+-   I design strategy and algorithm work on problem.
+-   Testing strategy and algorithm with simple implement. Make sure it work
+-   Golang version with some optimize time complexity and space complexity. Hope my code does not too much `smell code` =)).
+-   Unit testing with some testcase.
+-   Propose strategy external sort for bigger file.
+
+THANKS FOR READING =)).

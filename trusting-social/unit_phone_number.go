@@ -26,10 +26,13 @@ type Record struct {
 func read(input *os.File) (map[int][]*Pair, error) {
 	reader := bufio.NewReader(input)
 	res := make(map[int][]*Pair)
-	reader.ReadString('\n')
+	text, err := reader.ReadString('\n')
+	if err != nil || len(text) == 0 {
+		return nil, err
+	}
 	for {
-		text, ok := reader.ReadString('\n')
-		if ok != nil {
+		text, err = reader.ReadString('\n')
+		if err != nil {
 			break
 		}
 		text = strings.TrimSuffix(text, "\n")
@@ -57,6 +60,7 @@ func read(input *os.File) (map[int][]*Pair, error) {
 	return res, nil
 }
 
+// don't available unit test, I don't know how to write unit test this func
 func processPhoneActivities(in chan *Record, wg *sync.WaitGroup, output *os.File) {
 	defer wg.Done()
 	writer := bufio.NewWriter(output)
@@ -91,11 +95,11 @@ func processPhoneActivities(in chan *Record, wg *sync.WaitGroup, output *os.File
 func UnitPhoneNumberImp(numWorker int, intput *os.File, output *os.File) error {
 	var wg sync.WaitGroup
 	activitiesLog, err := read(intput)
-	if err != nil {
+	n := len(activitiesLog)
+	if err != nil || n == 0 {
 		return err
 	}
-	n := len(activitiesLog)
-	if numWorker > n {
+	if numWorker > n || numWorker <= 0 {
 		numWorker = n
 	}
 	channels := make([]chan *Record, numWorker)
@@ -103,6 +107,18 @@ func UnitPhoneNumberImp(numWorker int, intput *os.File, output *os.File) error {
 		// (n-1)/numWorker+1 mean buffer chan get ceil (round up)
 		channels[i] = make(chan *Record, (n-1)/numWorker+1)
 	}
+
+	writer := bufio.NewWriter(output)
+	if a, err := writer.WriteString("PHONE_NUMBER,REAL_ACTIVATION_DATE\n"); err != nil {
+		fmt.Println(a, err)
+		return err
+	}
+	writer.Flush()
+	for i := 0; i < numWorker; i++ {
+		wg.Add(1)
+		go processPhoneActivities(channels[i], &wg, output)
+	}
+
 	count := 0
 	for phone, activities := range activitiesLog {
 		channels[count%numWorker] <- &Record{
@@ -111,13 +127,7 @@ func UnitPhoneNumberImp(numWorker int, intput *os.File, output *os.File) error {
 		}
 		count++
 	}
-	writer := bufio.NewWriter(output)
-	writer.WriteString("PHONE_NUMBER,REAL_ACTIVATION_DATE\n")
-	writer.Flush()
-	for i := 0; i < numWorker; i++ {
-		wg.Add(1)
-		go processPhoneActivities(channels[i], &wg, output)
-	}
+
 	for i := range channels {
 		close(channels[i])
 	}
@@ -135,5 +145,8 @@ func main() {
 			panic("numWorker must be numberic")
 		}
 	}
-	UnitPhoneNumberImp(numWorker, os.Stdin, os.Stdout)
+	err := UnitPhoneNumberImp(numWorker, os.Stdin, os.Stdout)
+	if err != nil {
+		panic(err)
+	}
 }
