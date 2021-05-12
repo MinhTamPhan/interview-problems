@@ -6,4 +6,4 @@ Task 1 [Algorithm and coding]: Find the actual activation date of phone number? 
 
 ## [Task 2](./task2.md)
 #
-Task 2 [System architecture design]: Design a system for selling products. [Read here](./task1.md) for my solution.
+Task 2 [System architecture design]: Design a system for selling products. [Read here](./task2.md) for my solution.
